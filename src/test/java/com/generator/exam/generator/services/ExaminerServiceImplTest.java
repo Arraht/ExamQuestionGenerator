@@ -24,7 +24,6 @@ public class ExaminerServiceImplTest {
     @Mock
     private QuestionService questionService;
     private Set<Question> questionSetTest;
-    private List<Question> questionListTest;
 
     @BeforeEach
     public void setUp() {
@@ -41,11 +40,6 @@ public class ExaminerServiceImplTest {
         Question questionThreeTest = new Question(questionThree.toLowerCase(), answerThree.toLowerCase());
         Question questionFourTest = new Question(questionFour.toLowerCase(), answerFour.toLowerCase());
         questionSetTest = new HashSet<>(Set.of(questionOneTest, questionTwoTest, questionThreeTest, questionFourTest));
-        questionListTest = new ArrayList<>(List.of(
-                questionOneTest,
-                questionTwoTest,
-                questionThreeTest,
-                questionFourTest));
     }
 
     @Test
@@ -63,17 +57,17 @@ public class ExaminerServiceImplTest {
 
     @Test
     public void getQuestionEmptyListExceptionTest() {
-        questionListTest.clear();
-        when(questionService.getAll()).thenReturn(questionListTest);
+        questionSetTest.clear();
+        when(questionService.getAll()).thenReturn(questionSetTest.stream().toList());
         assertThrows(EmptyListException.class, () -> examinerService.getQuestion(3));
     }
 
     @Test
     public void getQuestionTest() {
-        when(questionService.getAll()).thenReturn(questionListTest);
+        when(questionService.getAll()).thenReturn(questionSetTest.stream().toList());
         when(questionService.getRandomQuestion())
-                .thenReturn(questionListTest.get(0))
-                .thenReturn(questionListTest.get(1));
+                .thenReturn(questionSetTest.stream().toList().get(0))
+                .thenReturn(questionSetTest.stream().toList().get(1));
         assertEquals(2, examinerService.getQuestion(2).size());
     }
 }
