@@ -11,10 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -28,10 +25,6 @@ public class ExaminerServiceImplTest {
     private QuestionService questionService;
     private Set<Question> questionSetTest;
     private List<Question> questionListTest;
-    private Question questionOneTest;
-    private Question questionTwoTest;
-    private Question questionThreeTest;
-    private Question questionFourTest;
 
     @BeforeEach
     public void setUp() {
@@ -43,37 +36,44 @@ public class ExaminerServiceImplTest {
         String answerThree = "Ответ3";
         String questionFour = "Вопрос4";
         String answerFour = "Ответ4";
-        questionOneTest = new Question(questionOne.toLowerCase(), answerOne.toLowerCase());
-        questionTwoTest = new Question(questionTwo.toLowerCase(), answerTwo.toLowerCase());
-        questionThreeTest = new Question(questionThree.toLowerCase(), answerThree.toLowerCase());
-        questionFourTest = new Question(questionFour.toLowerCase(), answerFour.toLowerCase());
-        questionSetTest = new HashSet<>(Set.of());
-        questionListTest = new ArrayList<>(List.of(questionOneTest, questionTwoTest, questionThreeTest, questionFourTest));
+        Question questionOneTest = new Question(questionOne.toLowerCase(), answerOne.toLowerCase());
+        Question questionTwoTest = new Question(questionTwo.toLowerCase(), answerTwo.toLowerCase());
+        Question questionThreeTest = new Question(questionThree.toLowerCase(), answerThree.toLowerCase());
+        Question questionFourTest = new Question(questionFour.toLowerCase(), answerFour.toLowerCase());
+        questionSetTest = new HashSet<>(Set.of(questionOneTest, questionTwoTest, questionThreeTest, questionFourTest));
+        questionListTest = new ArrayList<>(List.of(
+                questionOneTest,
+                questionTwoTest,
+                questionThreeTest,
+                questionFourTest));
     }
 
     @Test
     public void getQuestionMoreRequestsTest() {
-        when(questionService.getAll()).thenReturn(questionListTest);
+        when(questionService.getAll()).thenReturn(questionSetTest.stream().toList());
         assertThrows(BadAmountException.class, () -> examinerService.getQuestion(5));
     }
 
     @Test
     public void getQuestionRequestZeroOrLessTest() {
-        when(questionService.getAll()).thenReturn(questionListTest);
+        when(questionService.getAll()).thenReturn(questionSetTest.stream().toList());
         assertThrows(BadAmountException.class, () -> examinerService.getQuestion(0));
         assertThrows(BadAmountException.class, () -> examinerService.getQuestion(-5));
     }
 
     @Test
     public void getQuestionEmptyListExceptionTest() {
-        when(questionService.getAll()).thenReturn(questionListTest);
         questionListTest.clear();
+        when(questionService.getAll()).thenReturn(questionListTest);
         assertThrows(EmptyListException.class, () -> examinerService.getQuestion(3));
     }
 
-    /*@Test
+    @Test
     public void getQuestionTest() {
         when(questionService.getAll()).thenReturn(questionListTest);
-        assertEquals(2, examinerService.getQuestion(2));
-    }*/
+        when(questionService.getRandomQuestion())
+                .thenReturn(questionListTest.get(0))
+                .thenReturn(questionListTest.get(1));
+        assertEquals(2, examinerService.getQuestion(2).size());
+    }
 }
